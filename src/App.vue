@@ -49,8 +49,8 @@ export default {
     return {
       jobDescription: '',
       candidateResume: '',
-      // --- UPDATED: Backend URL ---
-      backendApiUrl: 'https://resume-matcher-backend-lu7b.onrender.com/analyze-resume', // <-- Added /analyze-resume endpoint
+      // --- UPDATED: Backend URL with endpoint ---
+      backendApiUrl: 'https://resume-matcher-backend-lu7b.onrender.com/analyze-resume',
       // --- END UPDATED ---
       matchResult: null,
       loading: false,
@@ -84,7 +84,8 @@ export default {
           }
 
           const data = await response.json();
-          this.matchResult = data.match_result; // Assuming data structure is { "match_result": { "match_percentage": ..., "explanation": ... } }
+          // Assuming the backend returns { "match_result": { "match_percentage": ..., "explanation": ... } }
+          this.matchResult = data.match_result;
       } catch (error) {
           console.error("Error connecting to backend:", error);
           this.errorMessage = `Network error: Could not connect to backend API at ${this.backendApiUrl}. Please check if the backend is running and the URL is correct.`;
