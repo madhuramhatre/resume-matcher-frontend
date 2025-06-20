@@ -84,7 +84,6 @@ export default {
           }
 
           const data = await response.json();
-          // Assuming the backend returns { "match_result": { "match_percentage": ..., "explanation": ... } }
           this.matchResult = data.match_result;
       } catch (error) {
           console.error("Error connecting to backend:", error);
