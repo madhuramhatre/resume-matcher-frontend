@@ -6,18 +6,18 @@
       <div class="input-group">
         <label for="job-description">Job Description</label>
        <textarea
-         id="job-description"
+          id="job-description"
           v-model="jobDescription"
           rows="10"
-          placeholder="Paste the full job description here...">
-        </textarea>
+          placeholder="Paste the full job description here..."
+        ></textarea>
       </div>
 
       <div class="input-group">
         <label for="resume-text">Candidate Resume</label>
         <textarea
           id="resume-text"
-          v-model="resumeText"
+          v-model="candidateResume"
           rows="10"
           placeholder="Paste the candidate's full resume text here..."
         ></textarea>
@@ -30,9 +30,10 @@
 
     <div v-if="loading" class="loader">Loading analysis...</div>
 
-    <div v-if="analysisResult" class="analysis-output">
+    <div v-if="matchResult" class="analysis-output">
       <h2>Analysis Results</h2>
-      <div v-html="analysisResult"></div>
+      <p><strong>Match Percentage:</strong> {{ matchResult.match_percentage }}%</p>
+      <p><strong>Explanation:</strong> {{ matchResult.explanation }}</p>
     </div>
 
     <div v-if="errorMessage" class="error-message">
@@ -45,21 +46,54 @@
 <script>
 export default {
   data() {
-    return { // <-- This is the correct opening brace for the returned object
+    return {
       jobDescription: '',
       candidateResume: '',
-      // Set to an empty string for now, we'll update with Render URL later
-      backendApiUrl: '',
+      // --- UPDATED: Backend URL ---
+      backendApiUrl: 'https://resume-matcher-backend-lu7b.onrender.com/analyze-resume', // <-- Added /analyze-resume endpoint
+      // --- END UPDATED ---
       matchResult: null,
       loading: false,
       errorMessage: '',
-    }; // <-- This is the correct closing brace for the returned object
+    };
   },
   methods: {
     async analyzeMatch() {
-      // ... (your commented-out fetch logic) ...
-    }
-  }
+      // --- UNCOMMENTED AND ACTIVATED FETCH LOGIC ---
+      console.log("Attempting to analyze match...");
+      this.errorMessage = '';
+      this.matchResult = null;
+      this.loading = true;
+
+      const formData = new URLSearchParams();
+      formData.append('job_description', this.jobDescription);
+      formData.append('candidate_resume', this.candidateResume);
+
+      try {
+          const response = await fetch(this.backendApiUrl, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: formData.toString(),
+          });
+
+          if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+          }
+
+          const data = await response.json();
+          this.matchResult = data.match_result; // Assuming data structure is { "match_result": { "match_percentage": ..., "explanation": ... } }
+      } catch (error) {
+          console.error("Error connecting to backend:", error);
+          this.errorMessage = `Network error: Could not connect to backend API at ${this.backendApiUrl}. Please check if the backend is running and the URL is correct.`;
+      } finally {
+          this.loading = false;
+      }
+      // --- END UNCOMMENTED LOGIC ---
+    },
+  },
 };
 </script>
 
